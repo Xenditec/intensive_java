@@ -5,20 +5,22 @@ import org.example.Model.Transaction;
 
 import java.time.LocalDate;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class ReportService {
+    private static Map<String, List<Transaction>> report = new HashMap<>();
 
 
 
     // Метод для подсчёта текущего баланса
-    public static double calculateCurrentBalance(List<Transaction> transactions) {
+    public static double calculateCurrentBalance(String userId) {
         double balance = 0;
-        for (Transaction transaction : transactions) {
-            if (transaction.getType().equalsIgnoreCase("income")) {
-                balance += transaction.getAmount();
-            } else if (transaction.getType().equalsIgnoreCase("expense")) {
-                balance -= transaction.getAmount();
+        List<Transaction> userTransactions = report.getOrDefault(userId, Collections.emptyList());
+        for (Transaction t : userTransactions){
+            if (t.getType().trim().equalsIgnoreCase("income")){
+                balance += t.getAmount();
+            }
+            else if(t.getType().trim().equalsIgnoreCase("expense")){
+                balance -= t.getAmount();
             }
         }
         return balance;
@@ -45,10 +47,12 @@ public class ReportService {
     }
 
     // Метод для анализа расходов по категориям
-    public static Map<String, Double> analyzeExpensesByCategory(List<Transaction> transactions) {
+    public static Map<String, Double> analyzeExpensesByCategory(String userId) {
+       List<Transaction> transactions = TransactionService.getUserTransaction(userId);
         Map<String, Double> categoryExpenses = new HashMap<>();
         for (Transaction transaction : transactions) {
-            if (transaction.getType().equalsIgnoreCase("expense")) {
+            if (transaction.getType().trim().equalsIgnoreCase("expense")) {
+                System.out.println("Добавляем в категорию " + transaction.getCategory() + ": " + transaction.getAmount());
                 categoryExpenses.put(transaction.getCategory(),
                         categoryExpenses.getOrDefault(transaction.getCategory(), 0.0) + transaction.getAmount());
             }
@@ -60,20 +64,15 @@ public class ReportService {
     public static Report generateReport(String userId, LocalDate startDate, LocalDate endDate) {
         // Получаем все транзакции пользователя
         List<Transaction> userTransactions = TransactionService.filteredTransactions(userId, null, null, startDate, endDate);
-
         // Рассчитываем текущий баланс
-        double currentBalance = calculateCurrentBalance(userTransactions);
-
+        double currentBalance = calculateCurrentBalance(userId);
         // Рассчитываем суммарный доход
         double totalIncome = calculateTotalIncome(userTransactions, startDate, endDate);
-
         // Рассчитываем суммарный расход
         double totalExpense = calculateTotalExpense(userTransactions, startDate, endDate);
-
         // Анализируем расходы по категориям
-        Map<String, Double> categoryExpenses = analyzeExpensesByCategory(userTransactions);
-
+        Map<String, Double> categoryExpenses = analyzeExpensesByCategory(userId);
         // Генерируем отчёт
-        return new Report(userId, currentBalance, totalIncome, totalExpense, categoryExpenses, startDate, endDate);
+                return new Report(userId, currentBalance, totalIncome, totalExpense, categoryExpenses, startDate, endDate);
     }
 }

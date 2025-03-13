@@ -5,20 +5,18 @@ import org.example.Model.Transaction;
 import org.example.Service.TransactionService;
 
 import java.util.List;
+import java.util.Map;
 
 public class AdminService extends UserService {
-    private final TransactionService transactionService;
-
-    public AdminService(TransactionService transactionService) {
-        this.transactionService = transactionService;
-    }
-
-    public void deleteUser(String email) {
-        User user = users.get(email);
-        users.remove(email, user);
+    /**
+     * @param userId Пользователь должен иметь возможность себя удалить тоже (Перенести метод deleteUser -> В UserService)
+     */
+    public static void deleteUser(String userId) {
+        User user = users.get(userId);
+        users.remove(userId, user);
         System.out.println("Пользователь успешно удалён");
-
     }
+
 
     // Просмотр всех пользователей
     public static void viewAllUsers() {
@@ -51,7 +49,7 @@ public class AdminService extends UserService {
         }
     }
 
-    public void unblockUser(String email) {
+    public static void unblockUser(String email) {
         User user = users.get(email);
         if (user != null) {
             user.setBlocked(false); // разблокируем пользователя
@@ -61,4 +59,13 @@ public class AdminService extends UserService {
         }
     }
 
+
+    public static void viewAllTransactions(Map<String, User> users) {
+
+        System.out.println("Вывод транзакций всех пользователей:");
+        for (User user : users.values()) {
+            System.out.println("Пользователь с email: " + user.getEmail());
+            TransactionService.listOfAllTransactions(user.getId());
+        }
+    }
 }

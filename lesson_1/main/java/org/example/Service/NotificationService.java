@@ -12,15 +12,8 @@ import java.util.List;
 import java.util.Map;
 
 public class NotificationService {
-    private final BudgetService budgetService;
-    private final UserService userService;
 
-    public NotificationService(BudgetService budgetService, UserService userService) {
-        this.budgetService = budgetService;
-        this.userService = userService;
-    }
-
-    public void sendBudgetExceedNotification(String userId) {
+    public static void sendBudgetExceedNotification(String userId) {
         double remainingBudget = BudgetService.getRemainingBudget(userId);
         if (remainingBudget < 0) {
             System.out.println("Бюджет не установлен для пользователя с ID: " + userId);
@@ -29,11 +22,13 @@ public class NotificationService {
 
         if (remainingBudget < 0) {
             System.out.println("Внимание! Вы превысили бюджет для пользователя с ID: " + userId);
-            User user = userService.login(userId, ""); // Пример использования логина, можно передать пустой пароль
+            User user = UserService.login(userId, ""); // Пример использования логина, можно передать пустой пароль
             if (user != null) {
                 System.out.println("Отправка уведомления пользователю: " + user.getName());
                 // Здесь может быть отправка уведомления через email
             }
         }
+
+
     }
 }

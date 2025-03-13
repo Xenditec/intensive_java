@@ -33,4 +33,5 @@ public class Transaction {
     public void setAmount(double amount) {this.amount = amount;}
     public void setCategory(String category) {this.category = category;}
     public void setDescription(String description) {this.description = description;}
+    public void setType(String type) {this.type = type;}
 }
